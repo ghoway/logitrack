@@ -2,14 +2,16 @@
 
 namespace App\Filament\Resources\Shipments\Schemas;
 
+use App\Models\Rate;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Section;
-use Filament\Schemas\Schema;
 use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Components\Utilities\Set;
+use Filament\Schemas\Schema;
 
 class ShipmentForm
 {
@@ -24,7 +26,7 @@ class ShipmentForm
                                 ->relationship('sender', 'name')
                                 ->label('Sender / Client')
                                 ->default(auth()->id())
-                                ->disabled(fn (string $operation): bool => !auth()->user()?->hasRole('super_admin'))
+                                ->disabled(fn (string $operation): bool => ! auth()->user()?->hasRole('super_admin'))
                                 ->dehydrated()
                                 ->required()
                                 ->columnSpan(1),
@@ -44,18 +46,19 @@ class ShipmentForm
                         Grid::make(2)->schema([
                             TextInput::make('receiver_name')
                                 ->required()
-                                ->disabled(fn (string $operation): bool => !auth()->user()?->hasRole('super_admin') && ($operation !== 'create' || !auth()->user()?->hasRole('user')))
+                                ->disabled(fn (string $operation): bool => ! auth()->user()?->hasRole('super_admin') && ($operation !== 'create' || ! auth()->user()?->hasRole('user')))
                                 ->columnSpan(1),
                             TextInput::make('receiver_phone')
                                 ->label('Receiver Phone')
                                 ->tel()
                                 ->required()
-                                ->disabled(fn (string $operation): bool => !auth()->user()?->hasRole('super_admin') && ($operation !== 'create' || !auth()->user()?->hasRole('user')))
+                                ->disabled(fn (string $operation): bool => ! auth()->user()?->hasRole('super_admin') && ($operation !== 'create' || ! auth()->user()?->hasRole('user')))
                                 ->columnSpan(1),
-                            TextInput::make('receiver_address')
+                            Textarea::make('receiver_address')
                                 ->label('Receiver Address')
+                                ->rows(3)
                                 ->required()
-                                ->disabled(fn (string $operation): bool => !auth()->user()?->hasRole('super_admin') && ($operation !== 'create' || !auth()->user()?->hasRole('user')))
+                                ->disabled(fn (string $operation): bool => ! auth()->user()?->hasRole('super_admin') && ($operation !== 'create' || ! auth()->user()?->hasRole('user')))
                                 ->columnSpanFull(),
                         ]),
                     ]),
@@ -65,12 +68,12 @@ class ShipmentForm
                         Grid::make(2)->schema([
                             Select::make('rate_id')
                                 ->relationship('rate', 'id')
-                                ->getOptionLabelFromRecordUsing(fn ($record) => "{$record->route->origin} -> {$record->route->destination} ({$record->type} - Rp " . number_format($record->price_per_kg, 0, ',', '.') . "/kg)")
+                                ->getOptionLabelFromRecordUsing(fn ($record) => "{$record->route->origin} -> {$record->route->destination} ({$record->type} - Rp ".number_format($record->price_per_kg, 0, ',', '.').'/kg)')
                                 ->searchable()
                                 ->preload()
                                 ->live()
                                 ->afterStateUpdated(fn (Get $get, Set $set) => self::calculateFees($get, $set))
-                                ->disabled(fn (string $operation): bool => !auth()->user()?->hasRole('super_admin') && ($operation !== 'create' || !auth()->user()?->hasRole('user')))
+                                ->disabled(fn (string $operation): bool => ! auth()->user()?->hasRole('super_admin') && ($operation !== 'create' || ! auth()->user()?->hasRole('user')))
                                 ->required()
                                 ->columnSpan(1),
                             Select::make('status')
@@ -92,6 +95,8 @@ class ShipmentForm
                                 ->visibility('public')
                                 ->visible(fn (Get $get): bool => $get('status') === 'delivered')
                                 ->required(fn (Get $get): bool => $get('status') === 'delivered')
+                                ->disabled(fn (?Shipment $record): bool => ! auth()->user()?->hasRole('super_admin') && $record && filled($record->delivery_proof))
+                                ->dehydrated()
                                 ->columnSpan(1),
                         ]),
                     ]),
@@ -105,7 +110,7 @@ class ShipmentForm
                                 ->required()
                                 ->live(onBlur: true)
                                 ->afterStateUpdated(fn (Get $get, Set $set) => self::calculateFees($get, $set))
-                                ->disabled(fn (string $operation): bool => !auth()->user()?->hasRole('super_admin') && ($operation !== 'create' || !auth()->user()?->hasRole('user')))
+                                ->disabled(fn (string $operation): bool => ! auth()->user()?->hasRole('super_admin') && ($operation !== 'create' || ! auth()->user()?->hasRole('user')))
                                 ->columnSpan(1),
                             TextInput::make('length')
                                 ->label('Length (cm)')
@@ -114,7 +119,7 @@ class ShipmentForm
                                 ->required()
                                 ->live(onBlur: true)
                                 ->afterStateUpdated(fn (Get $get, Set $set) => self::calculateFees($get, $set))
-                                ->disabled(fn (string $operation): bool => !auth()->user()?->hasRole('super_admin') && ($operation !== 'create' || !auth()->user()?->hasRole('user')))
+                                ->disabled(fn (string $operation): bool => ! auth()->user()?->hasRole('super_admin') && ($operation !== 'create' || ! auth()->user()?->hasRole('user')))
                                 ->columnSpan(1),
                             TextInput::make('width')
                                 ->label('Width (cm)')
@@ -123,7 +128,7 @@ class ShipmentForm
                                 ->required()
                                 ->live(onBlur: true)
                                 ->afterStateUpdated(fn (Get $get, Set $set) => self::calculateFees($get, $set))
-                                ->disabled(fn (string $operation): bool => !auth()->user()?->hasRole('super_admin') && ($operation !== 'create' || !auth()->user()?->hasRole('user')))
+                                ->disabled(fn (string $operation): bool => ! auth()->user()?->hasRole('super_admin') && ($operation !== 'create' || ! auth()->user()?->hasRole('user')))
                                 ->columnSpan(1),
                             TextInput::make('height')
                                 ->label('Height (cm)')
@@ -132,7 +137,7 @@ class ShipmentForm
                                 ->required()
                                 ->live(onBlur: true)
                                 ->afterStateUpdated(fn (Get $get, Set $set) => self::calculateFees($get, $set))
-                                ->disabled(fn (string $operation): bool => !auth()->user()?->hasRole('super_admin') && ($operation !== 'create' || !auth()->user()?->hasRole('user')))
+                                ->disabled(fn (string $operation): bool => ! auth()->user()?->hasRole('super_admin') && ($operation !== 'create' || ! auth()->user()?->hasRole('user')))
                                 ->columnSpan(1),
                         ]),
                         Grid::make(2)->schema([
@@ -152,7 +157,8 @@ class ShipmentForm
                                 ->required()
                                 ->columnSpan(1),
                         ]),
-                    ]),
+                    ])
+                    ->columnSpanFull(),
             ]);
     }
 
@@ -169,7 +175,7 @@ class ShipmentForm
 
         $rateId = $get('rate_id');
         if ($rateId) {
-            $rate = \App\Models\Rate::find($rateId);
+            $rate = Rate::find($rateId);
             if ($rate) {
                 $totalFee = $chargeableWeight * $rate->price_per_kg;
                 $set('total_shipping_fee', round($totalFee, 2));

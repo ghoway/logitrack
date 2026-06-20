@@ -16,7 +16,6 @@ use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
 
 class RateResource extends Resource
 {
@@ -26,7 +25,10 @@ class RateResource extends Resource
 
     protected static string|\UnitEnum|null $navigationGroup = 'Master Data';
 
-
+    public static function shouldRegisterNavigation(): bool
+    {
+        return auth()->user()?->hasRole('super_admin') ?? false;
+    }
 
     public static function form(Schema $schema): Schema
     {
@@ -64,7 +66,7 @@ class RateResource extends Resource
                     ->searchable(query: function ($query, string $search) {
                         $query->whereHas('route', function ($q) use ($search) {
                             $q->where('origin', 'like', "%{$search}%")
-                              ->orWhere('destination', 'like', "%{$search}%");
+                                ->orWhere('destination', 'like', "%{$search}%");
                         });
                     }),
                 TextColumn::make('type')
@@ -77,7 +79,7 @@ class RateResource extends Resource
                     ->formatStateUsing(fn (string $state): string => ucfirst($state))
                     ->sortable(),
                 TextColumn::make('price_per_kg')
-                    ->formatStateUsing(fn ($state) => 'Rp ' . number_format($state, 0, ',', '.'))
+                    ->formatStateUsing(fn ($state) => 'Rp '.number_format($state, 0, ',', '.'))
                     ->sortable(),
                 TextColumn::make('estimated_days')
                     ->suffix(' days')

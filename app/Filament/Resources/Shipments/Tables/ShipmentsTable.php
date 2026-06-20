@@ -2,22 +2,23 @@
 
 namespace App\Filament\Resources\Shipments\Tables;
 
-use Filament\Forms\Components\FileUpload;
-use Filament\Schemas\Components\Utilities\Get;
-use Filament\Tables\Columns\ImageColumn;
 use App\Models\Shipment;
 use Filament\Actions\Action;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\ViewAction;
+use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Select;
+use Filament\Schemas\Components\Utilities\Get;
 use Filament\Support\Icons\Heroicon;
+use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\TernaryFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\DB;
 
 class ShipmentsTable
 {
@@ -51,7 +52,7 @@ class ShipmentsTable
                     ->sortable(),
                 TextColumn::make('total_shipping_fee')
                     ->label('Fee')
-                    ->formatStateUsing(fn ($state) => 'Rp ' . number_format($state, 0, ',', '.'))
+                    ->formatStateUsing(fn ($state) => 'Rp '.number_format($state, 0, ',', '.'))
                     ->sortable(),
                 TextColumn::make('status')
                     ->badge()
@@ -70,10 +71,10 @@ class ShipmentsTable
                     ->placeholder('No proof')
                     ->visible(fn (): bool => auth()->user()?->hasRole('super_admin') || auth()->user()?->hasRole('user')),
                 TextColumn::make('payment.is_paid')
-                    ->label('Paid')
+                    ->label('Payment Status')
                     ->badge()
-                    ->color(fn ($state): string => $state ? 'success' : 'danger')
-                    ->formatStateUsing(fn ($state): string => $state ? 'Paid' : 'Unpaid')
+                    ->color(fn ($state, Shipment $record): string => $state ? 'success' : (($record->payment && filled($record->payment->proof)) ? 'warning' : 'danger'))
+                    ->formatStateUsing(fn ($state, Shipment $record): string => $state ? 'Paid' : (($record->payment && filled($record->payment->proof)) ? 'Proof Uploaded' : 'Unpaid'))
                     ->sortable(),
             ])
             ->filters([
@@ -95,6 +96,15 @@ class ShipmentsTable
                 ViewAction::make(),
                 EditAction::make()
                     ->visible(fn (Shipment $record): bool => auth()->user()?->hasRole('super_admin') || (auth()->user()?->hasRole('courier') && $record->courier_id === auth()->id())),
+                Action::make('approvePayment')
+                    ->label('Approve Payment')
+                    ->icon(Heroicon::OutlinedCheckCircle)
+                    ->color('success')
+                    ->visible(fn (Shipment $record): bool => auth()->user()?->hasRole('super_admin') && $record->payment && ! $record->payment->is_paid)
+                    ->action(fn (Shipment $record) => DB::transaction(function () use ($record) {
+                        $record->payment->update(['is_paid' => true]);
+                        $record->update(['status' => 'picked_up']);
+                    })),
                 Action::make('updateStatus')
                     ->label('Update Status')
                     ->icon(Heroicon::OutlinedArrowPath)
@@ -109,14 +119,18 @@ class ShipmentsTable
                                 'delivered' => 'Delivered',
                             ])
                             ->live()
-                            ->required(),
+                            ->required()
+                            ->columnSpanFull(),
                         FileUpload::make('delivery_proof')
                             ->label('Delivery Proof Image')
                             ->image()
                             ->directory('delivery-proofs')
                             ->visibility('public')
                             ->visible(fn (Get $get): bool => $get('status') === 'delivered')
-                            ->required(fn (Get $get): bool => $get('status') === 'delivered'),
+                            ->required(fn (Get $get): bool => $get('status') === 'delivered')
+                            ->disabled(fn (?Shipment $record): bool => ! auth()->user()?->hasRole('super_admin') && $record && filled($record->delivery_proof))
+                            ->dehydrated()
+                            ->columnSpanFull(),
                     ])
                     ->action(fn (Shipment $record, array $data) => $record->update($data)),
             ])

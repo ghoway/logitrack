@@ -10,6 +10,11 @@ class EditShipment extends EditRecord
 {
     protected static string $resource = ShipmentResource::class;
 
+    public function getMaxContentWidth(): string
+    {
+        return '5xl';
+    }
+
     protected function getHeaderActions(): array
     {
         return [
