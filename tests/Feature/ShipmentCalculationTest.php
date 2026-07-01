@@ -16,7 +16,7 @@ test('a shipment generates a tracking number and automatically creates an unpaid
         'destination' => 'Surabaya',
         'is_active' => true,
     ]);
-    
+
     $rate = Rate::create([
         'route_id' => $route->id,
         'type' => 'pesawat',
@@ -44,7 +44,7 @@ test('a shipment generates a tracking number and automatically creates an unpaid
     ]);
 
     expect($shipment->tracking_number)->toStartWith('ID-');
-    
+
     $payment = Payment::where('shipment_id', $shipment->id)->first();
     expect($payment)->not->toBeNull();
     expect($payment->is_paid)->toBeFalse();
@@ -58,7 +58,7 @@ test('approving a payment updates is_paid and transitions shipment status to pic
         'destination' => 'Surabaya',
         'is_active' => true,
     ]);
-    
+
     $rate = Rate::create([
         'route_id' => $route->id,
         'type' => 'pesawat',
@@ -82,7 +82,7 @@ test('approving a payment updates is_paid and transitions shipment status to pic
     ]);
 
     $payment = Payment::where('shipment_id', $shipment->id)->first();
-    
+
     // Simulate approvePayment action
     $payment->update(['is_paid' => true]);
     if ($shipment->status === 'pending') {

@@ -38,15 +38,15 @@ class UserResource extends Resource
                     ->required(),
                 // DateTimePicker::make('email_verified_at'),
                 Select::make('roles')
-                ->relationship('roles', 'name')
-                ->searchable()
-                ->preload()
-                ->required(),
+                    ->relationship('roles', 'name')
+                    ->searchable()
+                    ->preload()
+                    ->required(),
                 TextInput::make('password')
                     ->password()
                     ->required(fn (string $operation): bool => $operation === 'create')
                     ->dehydrateStateUsing(fn ($state) => filled($state) ? bcrypt($state) : null)
-                    ->dehydrated(fn ($state) => filled($state))
+                    ->dehydrated(fn ($state) => filled($state)),
             ]);
     }
 
