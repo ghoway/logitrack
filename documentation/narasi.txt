@@ -1,0 +1,89 @@
+NARASI PRESENTASI LOGITRACK
+Kelompok 2 — Rekayasa Perangkat Lunak
+Universitas Dian Nusantara
+
+=============================================================
+PEMBUKA — Usamah Adzuhri (Slide 1-4)
+=============================================================
+
+Assalamu'alaikum warahmatullahi wabarakatuh. Selamat malam dan salam sejahtera bagi kita semua.
+
+Yang terhormat Bapak dosen pengampu mata kuliah Rekayasa Perangkat Lunak, serta teman-teman yang saya banggakan. Perkenalkan, saya Usamah Adzuhri dengan NIM 411241059 dari Kelompok 2.
+
+Pada kesempatan kali ini, kami dari Kelompok 2 akan mempresentasikan proyek akhir mata kuliah Rekayasa Perangkat Lunak, yaitu sebuah sistem manajemen pengiriman logistik bernama LogiTrack.
+
+Sebelum masuk ke inti presentasi, izinkan kami memperkenalkan anggota kelompok. Kami berlima: Rafi Aprilian NIM 411241065, Wahyu Hidayatullah NIM 411241061, saya sendiri Usamah Adzuhri NIM 411241059, Ellen Novita Nuramadhan NIM 411241073, dan Muhammad Humam NIM 411241056.
+
+Slide pertama adalah halaman pembuka dari presentasi kami.
+
+Selanjutnya, pada slide 2, kami akan memaparkan latar belakang mengapa LogiTrack ini dibuat. Pertumbuhan e-commerce yang pesat meningkatkan kebutuhan layanan pengiriman yang terintegrasi. Namun, banyak layanan ekspedisi belum menyediakan sistem tracking yang transparan. Proses pencatatan manual pun rentan terhadap kesalahan. Selain itu, dibutuhkan sistem yang dapat melayani tiga peran berbeda yaitu admin, kurir, dan pengirim dalam satu platform terpadu. Inilah yang mendorong kami untuk membangun LogiTrack.
+
+Masuk ke slide 3, rumusan masalah yang kami angkat ada lima poin. Pertama, bagaimana merancang sistem yang dapat diakses oleh admin, kurir, dan pengirim dengan hak akses berbeda. Kedua, bagaimana mengintegrasikan fitur tracking yang dapat diakses publik tanpa login. Ketiga, bagaimana mengotomatiskan perhitungan biaya pengiriman. Keempat, bagaimana membangun sistem verifikasi pembayaran yang efisien. Dan kelima, bagaimana menyediakan bukti pengiriman digital berupa foto.
+
+Terakhir untuk sesi saya, slide 4 menjelaskan tujuan dari aplikasi ini. Ada empat target utama: membangun sistem dengan role-based access untuk tiga tingkatan pengguna, menyediakan halaman tracking publik dengan nomor resi, menghitung biaya kirim secara otomatis berdasarkan berat dimensi dan rute, serta menyediakan fitur unggah foto bukti pengiriman.
+
+Selanjutnya akan dipaparkan oleh Ellen Novita Nuramadhan.
+
+=============================================================
+ELLEN NOVITA NURAMADHAN — Ellen Novita Nuramadhan (Slide 5-8)
+=============================================================
+
+Terima kasih kepada Usamah. Selamat malam semuanya, saya Ellen Novita Nuramadhan dengan NIM 411241073. Saya akan melanjutkan pemaparan dari slide 5 hingga slide 8.
+
+Pada slide 5, kami memaparkan batasan masalah dari proyek ini. Aplikasi LogiTrack berbasis web menggunakan Laravel 13 dengan Filament 5 sebagai admin panel. Fokus kami adalah pada manajemen pengiriman barang, bukan pada manajemen armada atau logistik gudang. Metode pembayaran terbatas pada transfer bank manual dengan verifikasi upload bukti. Tracking pengiriman bergantung pada update manual dari kurir, bukan GPS real-time. Dan pengujian dilakukan secara automated menggunakan PHPUnit dan Pest.
+
+Slide 6 membahas kebutuhan fungsional berdasarkan peran pengguna. Untuk pengguna biasa atau user, mereka dapat membuat pengiriman, upload bukti bayar, dan melihat status pengiriman milik sendiri. Admin memiliki kewenangan untuk verifikasi pembayaran, assign kurir, dan mengelola data master seperti routes, rates, banks, dan users. Kurir dapat melihat tugas pengiriman yang ditugaskan, mengupdate status dari picked up menjadi in transit hingga delivered, serta mengupload bukti foto. Untuk publik, siapapun dapat melakukan tracking pengiriman via nomor resi tanpa perlu login.
+
+Slide 7 menjelaskan kebutuhan non-fungsional. Ada enam aspek yang kami perhatikan. Kinerja dengan waktu muat halaman di bawah 2 detik. Keamanan dengan autentikasi multi-role dan otorisasi berbasis permission menggunakan Spatie. Responsivitas agar tampilan dapat diakses dari desktop maupun mobile. Maintainability dengan mengikuti arsitektur MVC Laravel dan standar PSR-4. Usability dengan antarmuka intuitif dan wizard creation flow. Serta testability dengan pengujian menggunakan Pest PHP.
+
+Slide 8 memperlihatkan use case diagram dari aplikasi kami. Ada empat aktor yang berinteraksi dengan sistem. Admin dapat login, mengelola routes, rates, banks, users, memverifikasi pembayaran, dan mengassign kurir. Kurir dapat login, melihat tugas, mengupdate status kiriman, dan mengupload bukti foto. User dapat register, login, membuat pengiriman, upload bukti bayar, dan melihat status kiriman. Publik dapat melakukan tracking resi tanpa login.
+
+Selanjutnya akan dipaparkan oleh Muhammad Humam.
+
+=============================================================
+MUHAMMAD HUMAM (Slide 9-12)
+=============================================================
+
+Terima kasih Ellen. Saya Muhammad Humam dengan NIM 411241056 akan melanjutkan ke slide 9 sampai dengan slide 12 yang membahas perancangan database dan keamanan aplikasi.
+
+Slide 9 menampilkan Entity Relationship Diagram atau ERD dari LogiTrack. Terdapat enam tabel utama. Tabel users menyimpan data pengguna. Tabel shipments menyimpan data pengiriman yang berelasi dengan user sebagai sender, user sebagai courier, dan rate. Tabel payments berelasi dengan shipment untuk mencatat pembayaran. Tabel routes menyimpan rute pengiriman, dan rates menyimpan tarif per kilogram untuk tiap rute dan tipe layanan. Tabel banks menyimpan data rekening pembayaran.
+
+Slide 10 menjelaskan arsitektur aplikasi. LogiTrack dibangun dengan tiga lapisan utama. Backend menggunakan Laravel 13 dengan PHP 8.4 dan Eloquent ORM untuk interaksi database. Frontend menggunakan Filament 5 sebagai admin panel yang dibangun di atas Livewire 4 dan Tailwind CSS 4. Database bisa menggunakan MySQL atau SQLite dengan migration dan seeder untuk inisialisasi. Kami juga menggunakan Spatie Permission untuk manajemen role dan hak akses.
+
+Slide 11 memperlihatkan struktur database secara lebih detail. Tabel users menyimpan data nama, email, dan password. Tabel shipments memiliki kolom tracking number, data penerima, berat, dan status. Tabel payments mencatat jumlah pembayaran dan statusnya. Routes dan rates saling berelasi untuk menentukan tarif pengiriman.
+
+Slide 12 menjelaskan role dan hak akses. Super admin memiliki akses penuh ke seluruh fitur. Kurir hanya dapat melihat dan mengupdate shipment yang ditugaskan kepadanya. User dapat melihat routes dan rates, melakukan CRUD pada shipment miliknya sendiri, dan melihat payment miliknya. Implementasi permission ini menggunakan Spatie Laravel Permission dengan middleware role pada setiap resource Filament.
+
+Selanjutnya akan dipaparkan oleh Wahyu Hidayatullah.
+
+=============================================================
+WAHYU HIDAYATULLAH (Slide 13-16)
+=============================================================
+
+Terima kasih Humam. Saya Wahyu Hidayatullah dengan NIM 411241061. Saya akan memaparkan slide 13 hingga 16 yang membahas fitur unggulan dan implementasi aplikasi.
+
+Slide 13 menampilkan fitur unggulan LogiTrack. Yang pertama adalah Wizard Creation Flow, yaitu form create pengiriman dalam 3 langkah: pilih rute dan tarif, upload bukti bayar, lalu review dan submit. Kedua, kalkulasi biaya otomatis yang dihitung berdasarkan chargeable weight atau berat yang dikenakan biaya, yaitu yang lebih besar antara berat aktual dan berat dimensi, kemudian dikalikan dengan tarif per kilogram sesuai rute dan tipe layanan. Ketiga, dashboard widget untuk admin yang menampilkan statistik, grafik status pengiriman, grafik pendapatan 30 hari, dan tabel pengiriman terbaru. Keempat, bukti pengiriman digital berupa foto yang diupload kurir sebagai konfirmasi paket sampai.
+
+Slide 14 menggambarkan alur aplikasi dari awal hingga akhir. Dimulai dari user yang membuat kiriman, kemudian upload bukti bayar. Admin memverifikasi pembayaran dan mengassign kurir. Kurir menjemput paket, status berubah menjadi picked up. Kurir mengupdate status menjadi in transit saat dalam perjalanan, dan delivered saat paket sampai dengan mengupload foto bukti. Setelah delivered, publik dan pengirim dapat melacak status melalui halaman tracking publik.
+
+Slide 15 menampilkan beberapa tampilan aplikasi. Ada halaman shipments yang menampilkan tabel daftar pengiriman dengan filter status dan action buttons. Wizard create dengan form 3 langkah yang interaktif. Dashboard admin dengan widget statistik dan grafik. Serta halaman tracking publik yang dapat diakses tanpa login.
+
+Slide 16 menjelaskan detail implementasi teknis. Struktur project kami mengikuti standar Laravel dengan Models di app/Models, Filament resources di app/Filament/Resources, dan widgets di app/Filament/Widgets. Fitur kode yang kami bangun meliputi auto-generate tracking number dengan format ID-..., auto-create payment record saat shipment dibuat, kalkulasi chargeable weight, role-based form visibility, dan wizard dengan validasi per step.
+
+Selanjutnya akan dipaparkan oleh Rafi Aprilian.
+
+=============================================================
+RAFI APRILLIAN (Slide 17-20)
+=============================================================
+
+Terima kasih Wahyu. Saya Rafi Aprilian dengan NIM 411241065. Saya akan memaparkan slide 17 hingga 20 sebagai penutup presentasi kami.
+
+Slide 17 membahas strategi pengujian aplikasi. Kami menggunakan Pest PHP 4 dan PHPUnit 12 sebagai framework testing. Untuk testing komponen Filament, kami menggunakan plugin pestphp/pest-plugin-livewire. Cakupan tes meliputi unit test untuk model, feature test untuk resource CRUD, dan validation test untuk form. Contoh skenario uji antara lain: ketika user membuat pengiriman, tracking number harus tergenerate dan status menjadi pending. Ketika admin approve payment, status berubah menjadi picked up. Dan ketika kurir mengupdate ke delivered, foto bukti wajib diupload.
+
+Slide 18 berisi kesimpulan dari proyek LogiTrack. Pertama, LogiTrack berhasil mengimplementasikan sistem manajemen pengiriman dengan tiga peran pengguna. Kedua, fitur tracking publik memungkinkan siapa pun melacak status pengiriman tanpa login. Ketiga, kalkulasi biaya otomatis berjalan dengan baik. Keempat, sistem verifikasi pembayaran memberikan transparansi. Dan kelima, penggunaan Laravel 13, Filament 5, dan Livewire 4 menghasilkan aplikasi yang cepat, aman, dan mudah dipelihara.
+
+Slide 19 menyampaikan saran pengembangan ke depan. Ada empat saran utama. Pertama, integrasi tracking GPS real-time dengan API peta. Kedua, integrasi payment gateway seperti Midtrans atau Xendit untuk pembayaran otomatis. Ketiga, pembangunan aplikasi mobile khusus kurir untuk kemudahan update status di lapangan. Keempat, penambahan notifikasi real-time berupa push notification atau WhatsApp untuk update status pengiriman.
+
+Terakhir, slide 20 adalah penutup. Kami mengucapkan terima kasih yang sebesar-besarnya kepada Bapak/Ibu dosen pembimbing dan seluruh teman-teman yang telah menyimak presentasi kami. Demikian yang dapat kami sampaikan. Mohon maaf apabila ada kekurangan dan kesalahan kata.
+
+Wassalamu'alaikum warahmatullahi wabarakatuh.
