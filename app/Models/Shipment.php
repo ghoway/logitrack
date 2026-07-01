@@ -6,8 +6,8 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasOne;
-use Override;
 use Illuminate\Support\Str;
+use Override;
 
 class Shipment extends Model
 {
@@ -38,7 +38,7 @@ class Shipment extends Model
         parent::boot();
 
         static::creating(function ($shipment) {
-            $shipment->tracking_number = 'ID-' . now()->format('Ymd') . strtoupper(Str::random(4));
+            $shipment->tracking_number = 'ID-'.now()->format('Ymd').strtoupper(Str::random(4));
         });
 
         static::created(function ($shipment) {

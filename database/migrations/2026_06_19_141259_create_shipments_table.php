@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('shipments', function (Blueprint $table) {
             $table->id();
             $table->string('tracking_number');
-            
+
             $table->foreignId('sender_id')->constrained('users')->onDelete('cascade');
             $table->foreignId('courier_id')->nullable()->constrained('users')->onDelete('cascade');
 
@@ -32,10 +32,10 @@ return new class extends Migration
             $table->decimal('width', 8, 2)->default(0);  // cm (untuk volume)
             $table->decimal('height', 8, 2)->default(0); // cm (untuk volume)
             $table->decimal('chargeable_weight', 8, 2); // Berat akhir yang ditagih (hasil rumus berat vs volume)
-            
+
             // Total Biaya
             $table->decimal('total_shipping_fee', 12, 2);
-            
+
             // Status Pengiriman (e.g., pending, picked_up, in_transit, delivered)
             $table->string('status')->default('pending');
 

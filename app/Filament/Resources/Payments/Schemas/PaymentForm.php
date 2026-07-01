@@ -30,13 +30,13 @@ class PaymentForm
                                 ->label('Amount to Pay')
                                 ->numeric()
                                 ->prefix('Rp')
-                                ->disabled(fn (): bool => !auth()->user()?->hasRole('super_admin'))
+                                ->disabled(fn (): bool => ! auth()->user()?->hasRole('super_admin'))
                                 ->dehydrated()
                                 ->required()
                                 ->columnSpan(1),
                             Toggle::make('is_paid')
                                 ->label('Is Paid / Confirmed')
-                                ->disabled(fn (): bool => !auth()->user()?->hasRole('super_admin'))
+                                ->disabled(fn (): bool => ! auth()->user()?->hasRole('super_admin'))
                                 ->dehydrated()
                                 ->required()
                                 ->columnSpan(1),
@@ -51,7 +51,7 @@ class PaymentForm
                             ->image()
                             ->directory('payment-proofs')
                             ->visibility('public')
-                            ->required(fn (string $operation): bool => $operation === 'create' || !auth()->user()?->hasRole('super_admin'))
+                            ->required(fn (string $operation): bool => $operation === 'create' || ! auth()->user()?->hasRole('super_admin'))
                             ->columnSpanFull(),
                     ]),
             ]);

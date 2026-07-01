@@ -30,7 +30,7 @@ class PaymentsTable
                     ->sortable(),
                 TextColumn::make('amount')
                     ->label('Amount')
-                    ->formatStateUsing(fn ($state) => 'Rp ' . number_format($state, 0, ',', '.'))
+                    ->formatStateUsing(fn ($state) => 'Rp '.number_format($state, 0, ',', '.'))
                     ->sortable(),
                 ImageColumn::make('proof')
                     ->label('Receipt')
@@ -58,16 +58,16 @@ class PaymentsTable
             ->recordActions([
                 ViewAction::make(),
                 EditAction::make()
-                    ->visible(fn (Payment $record): bool => auth()->user()?->hasRole('super_admin') || (auth()->user()?->hasRole('user') && !$record->is_paid)),
+                    ->visible(fn (Payment $record): bool => auth()->user()?->hasRole('super_admin') || (auth()->user()?->hasRole('user') && ! $record->is_paid)),
                 Action::make('approvePayment')
                     ->label('Approve Payment')
                     ->icon(Heroicon::OutlinedCheckCircle)
                     ->color('success')
-                    ->visible(fn (Payment $record): bool => auth()->user()?->hasRole('super_admin') && !$record->is_paid)
+                    ->visible(fn (Payment $record): bool => auth()->user()?->hasRole('super_admin') && ! $record->is_paid)
                     ->requiresConfirmation()
                     ->action(function (Payment $record) {
                         $record->update(['is_paid' => true]);
-                        
+
                         $shipment = $record->shipment;
                         if ($shipment && $shipment->status === 'pending') {
                             $shipment->update(['status' => 'picked_up']);
